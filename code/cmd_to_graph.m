@@ -3,8 +3,8 @@ clear
 close all
 % filename = '../data/char00644_stroke.txt';
 % 當前目錄下的檔案
-in_dir = '../data/6axis'
-out_dir = '../data/2axis'
+in_dir = '../data'
+out_dir = '../output'
 files = dir(in_dir);
 % 檔案數量
 len = length(files);
