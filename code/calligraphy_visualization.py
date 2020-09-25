@@ -13,6 +13,25 @@ def save_file(data, out_path):
     fp.writelines(output_data)
     fp.close()
 
+def read_file(path, is_6d = True):
+    data = list()
+    txtFile = open(path)
+
+    if is_6d:
+        cmd = list()
+        for row in txtFile:
+            row = row.split()
+            data.append([float(row[2]), float(row[3]), float(row[4]), 
+                        float(row[5]), float(row[6]), float(row[7])])
+            cmd.append([row[0], row[1], row[8], row[9]])
+        
+        return np.array(data), cmd
+    
+    else:
+        for row in txtFile:
+            data.append([float(i) for i in row.split()])
+        return np.array(data)
+        
 def find_anchor(data):
     datax = [i[0] for i in data]
     datay = [i[1] for i in data]
@@ -22,32 +41,24 @@ def find_anchor(data):
 def angle2deg(angle):
     return angle * math.pi / 180 
 
-def visualization_from_path(path):
-    xyz = list()
-
-    txtFile = open(path)
-    for row in txtFile:
-        xyz.append([float(i) for i in row.split()])
-    
-    plt.plot([i[0] for i in xyz], [i[1] for i in xyz], 'ro')
-    plt.show()
-
-def visualization_from_var(data):
+def visualization(data):
     plt.plot([i[0] for i in data], [i[1] for i in data], 'ro')
     plt.show()
 
-def six_to_three(sixd_path, out_path):
-    data = []
-    txtFile = open(sixd_path)
-    for row in txtFile:
+#def three_to_six()
 
-        row = row.split()
-        x = float(row[2])
-        y = float(row[3])
-        z = float(row[4])
-        a = angle2deg(float(row[5]))
-        b = angle2deg(float(row[6]))
-        c = angle2deg(float(row[7]))
+def six_to_three(data, out_path):
+
+    out_data = list()
+
+    for row in data:
+
+        x = row[0]
+        y = row[1]
+        z = row[2]
+        a = angle2deg(row[3])
+        b = angle2deg(row[4])
+        c = angle2deg(row[5])
         
         Ra = np.array([
             [1, 0, 0],
@@ -80,9 +91,9 @@ def six_to_three(sixd_path, out_path):
 
         T = np.dot(A, B)
 
-        data.append([T[0][0], T[1][0], T[2][0]])
+        out_data.append([T[0][0], T[1][0], T[2][0]])
 
-    return np.array(data)
+    return np.array(out_data)
 
 def resize(data, anchor, ratio):
     out_data = list()
@@ -112,9 +123,10 @@ def resize(data, anchor, ratio):
 if __name__ == '__main__':
     sixd_path = '../data/工.txt'
     out_path = '../output/test.txt'
-    data = six_to_three(sixd_path, out_path)
+    data, cmd = read_file(sixd_path, is_6d=True)
+    data = six_to_three(data, out_path)
     data = resize(data, find_anchor(data), [0.3, 0.3, 0.3])
-    visualization_from_var(data)
+    visualization(data)
     #data = resize(sixd_path)
     #save_file(data, out_path)
     #visualization(out_path)
