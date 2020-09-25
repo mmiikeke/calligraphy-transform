@@ -1,23 +1,14 @@
 import math
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+from utils.tools import save_file
 
-def save_file(data, out_path):
-
-    output_data = list()
-
-    for row in data:
-        output_data.append(f"{str(row)[1:-1].replace(',', '')}\n")
-
-    fp = open(out_path, "a")
-    fp.writelines(output_data)
-    fp.close()
-
-def read_file(path, is_6d = True):
+def read_file(path, is_6dcmd = True):
     data = list()
     txtFile = open(path)
 
-    if is_6d:
+    if is_6dcmd:
         cmd = list()
         for row in txtFile:
             row = row.split()
@@ -25,33 +16,58 @@ def read_file(path, is_6d = True):
                         float(row[5]), float(row[6]), float(row[7])])
             cmd.append([row[0], row[1], row[8], row[9]])
         
-        return np.array(data), cmd
+        return np.array(data), np.array(cmd)
     
     else:
         for row in txtFile:
             data.append([float(i) for i in row.split()])
         return np.array(data)
         
-def find_anchor(data):
-    datax = [i[0] for i in data]
-    datay = [i[1] for i in data]
+def find_anchor(data_3d, z):
+    datax = [i[0] for i in data_3d]
+    datay = [i[1] for i in data_3d]
 
-    return [min(datax), max(datay), 10]
+    return [min(datax), max(datay), z]
 
 def angle2deg(angle):
     return angle * math.pi / 180 
 
-def visualization(data):
-    plt.plot([i[0] for i in data], [i[1] for i in data], 'ro')
+def visualize(data_3d):
+    plt.plot([i[0] for i in data_3d], [i[1] for i in data_3d], 'ro')
     plt.show()
 
-#def three_to_six()
+def six_to_cmd(data_6d, data_cmd):
+    data_6dcmd = list()
+    len_data = len(data_6d)
 
-def six_to_three(data, out_path):
+    for i in range(len_data):
+        data_6dcmd.append([
+            data_cmd[i][0],
+            data_cmd[i][1],
+            data_6d[i][0],
+            data_6d[i][1],
+            data_6d[i][2],
+            data_6d[i][3],
+            data_6d[i][4],
+            data_6d[i][5],
+            data_cmd[i][2],
+            data_cmd[i][3]
+            ])
+    
+    return data_6dcmd
 
-    out_data = list()
+def three_to_six(data_3d, data_angle, length = [0,0,-185]):
+    data_concate = np.append(data_3d, data_angle, 1)
+    out_data_3d, _ = six_to_three(data_concate, length)
+    out_data_6d = np.append(out_data_3d, data_angle, 1)
 
-    for row in data:
+    return out_data_6d
+
+def six_to_three(data_6d, length = [0,0,185]):
+    data_3d = list()
+    data_angle = list()
+
+    for row in data_6d:
 
         x = row[0]
         y = row[1]
@@ -87,13 +103,14 @@ def six_to_three(data, out_path):
         ])
 
         # 毛筆為 x軸 0mm, y軸 0mm, z軸 185 mm
-        B = np.array([[0],[0],[185],[1]])
+        B = np.array([[length[0]],[length[1]],[length[2]],[1]])
 
         T = np.dot(A, B)
 
-        out_data.append([T[0][0], T[1][0], T[2][0]])
+        data_3d.append([T[0][0], T[1][0], T[2][0]])
+        data_angle.append([row[3], row[4], row[5]])
 
-    return np.array(out_data)
+    return np.array(data_3d), np.array(data_angle)
 
 def resize(data, anchor, ratio):
     out_data = list()
@@ -121,15 +138,24 @@ def resize(data, anchor, ratio):
     return np.array(out_data)
 
 if __name__ == '__main__':
-    sixd_path = '../data/工.txt'
-    out_path = '../output/test.txt'
-    data, cmd = read_file(sixd_path, is_6d=True)
-    data = six_to_three(data, out_path)
-    data = resize(data, find_anchor(data), [0.3, 0.3, 0.3])
-    visualization(data)
-    #data = resize(sixd_path)
-    #save_file(data, out_path)
-    #visualization(out_path)
+    in_6dcmd_path = '../data/性.txt'
+    out_3d_path = '../output/33d.txt'
+    out_3dresized_path = '../output/33dresized.txt'
+    out_6dcmd_path = '../output/36dcmd.txt'
+
+    data_6d, data_cmd = read_file(in_6dcmd_path, is_6dcmd=True)
+
+    data_3d, data_angle = six_to_three(data_6d)
+    save_file(out_3d_path, data_3d)
+    visualize(data_3d)
+
+    data_3d = resize(data_3d, find_anchor(data_3d, 6), [0.5, 0.5, 0.3])
+    save_file(out_3dresized_path, data_3d)
+    visualize(data_3d)
+    
+    data_6d = three_to_six(data_3d, data_angle)
+    data_6dcmd = six_to_cmd(data_6d, data_cmd)
+    save_file(out_6dcmd_path, data_6dcmd)
 
 
 
