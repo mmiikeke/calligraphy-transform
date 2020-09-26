@@ -58,6 +58,22 @@ def visualize(data_3d):
     plt.plot([i[0] for i in data_3d], [i[1] for i in data_3d], 'ro')
     plt.show()
 
+def visualize_dot(data_3d, data_cmd, thresholdZ, with_thickness = False):
+    data_3d, data_cmd = find_draw_points(data_3d, data_cmd, thresholdZ)
+
+    data = {
+        'a': np.array([i[0] for i in data_3d]),
+        'b': np.array([i[1] for i in data_3d]),
+        'c': np.random.randint(0, 50, len(data_3d)),
+        's': np.array([(thresholdZ - i[2])*10+10 for i in data_3d])
+        }
+
+    if not with_thickness:
+        plt.scatter('a', 'b', c='darkslategray', data=data)
+    else:
+        plt.scatter('a', 'b', c='darkslategray', s='s', data=data)
+    plt.show()
+
 def visualize_line(data_3d, data_cmd, thresholdZ, with_thickness = False):
     data_3d, data_cmd = find_draw_points(data_3d, data_cmd, thresholdZ)
     
@@ -183,34 +199,24 @@ if __name__ == '__main__':
     out_3dresized_path = '../output/代3dresized.txt'
     out_6dcmd_path = '../output/代6dcmd.txt'
 
-    z0_point = 5.5 #3.21083745
-    """
-    data = np.array([[-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]])
-    data = six_to_three(data)
-    for i in data:
-        print(i)
-    """
-    data_6d, data_cmd = read_file(in_6dcmd_path, is_6dcmd=True)
-
-    data_3d, data_angle = six_to_three(data_6d)
-
-    visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)
-
-    """
+    z0_point = 5.5 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]
+    
+    #visualize(data_3d)
+    #visualize_dot(data_3d, data_cmd, z0_point, with_thickness=True)
+    #visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)
+    
     data_6d, data_cmd = read_file(in_6dcmd_path, is_6dcmd=True)
 
     data_3d, data_angle = six_to_three(data_6d)
     save_file(out_3d_path, data_3d)
-    #visualize(data_3d)
 
-    data_3d = resize(data_3d, find_anchor(data_3d, z0_point), [0.5, 0.5, 0.35], [0, 100, -4])
-    save_file(out_3dresized_path, data_3d)
-    #visualize(data_3d)
+    data_3d_resized = resize(data_3d, find_anchor(data_3d, z0_point), [0.5, 0.5, 0.35], [0, 100, -4])
+    save_file(out_3dresized_path, data_3d_resized)
     
-    data_6d = three_to_six(data_3d, data_angle)
+    data_6d = three_to_six(data_3d_resized, data_angle)
     data_6dcmd = six_to_cmd(data_6d, data_cmd)
     save_file(out_6dcmd_path, data_6dcmd)
-    """
+    
 
 
     
