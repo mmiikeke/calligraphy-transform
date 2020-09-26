@@ -112,7 +112,7 @@ def six_to_three(data_6d, length = [0,0,185]):
 
     return np.array(data_3d), np.array(data_angle)
 
-def resize(data, anchor, ratio):
+def resize(data, anchor, ratio, translate):
     out_data = list()
     
     affine1 = np.array([
@@ -123,9 +123,9 @@ def resize(data, anchor, ratio):
     ])
 
     affine2 = np.array([
-        [ratio[0], 0, 0, anchor[0]],
-        [0, ratio[1], 0, anchor[1]],
-        [0, 0, ratio[2], anchor[2]],
+        [ratio[0], 0, 0, anchor[0]+translate[0]],
+        [0, ratio[1], 0, anchor[1]+translate[1]],
+        [0, 0, ratio[2], anchor[2]+translate[2]],
         [0, 0, 0, 1]
     ])
     
@@ -138,25 +138,31 @@ def resize(data, anchor, ratio):
     return np.array(out_data)
 
 if __name__ == '__main__':
-    in_6dcmd_path = '../data/性.txt'
-    out_3d_path = '../output/33d.txt'
-    out_3dresized_path = '../output/33dresized.txt'
-    out_6dcmd_path = '../output/36dcmd.txt'
+    in_6dcmd_path = '../data/代.txt'
+    out_3d_path = '../output/代3d.txt'
+    out_3dresized_path = '../output/代3dresized.txt'
+    out_6dcmd_path = '../output/代6dcmd.txt'
 
+    z0_point = 5.5 #3.21083745
+    """
+    data = np.array([[-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]])
+    data = six_to_three(data)
+    for i in data:
+        print(i)
+    """
     data_6d, data_cmd = read_file(in_6dcmd_path, is_6dcmd=True)
 
     data_3d, data_angle = six_to_three(data_6d)
     save_file(out_3d_path, data_3d)
-    visualize(data_3d)
+    #visualize(data_3d)
 
-    data_3d = resize(data_3d, find_anchor(data_3d, 6), [0.5, 0.5, 0.3])
+    data_3d = resize(data_3d, find_anchor(data_3d, z0_point), [0.5, 0.5, 0.35], [0, 100, -4])
     save_file(out_3dresized_path, data_3d)
-    visualize(data_3d)
+    #visualize(data_3d)
     
     data_6d = three_to_six(data_3d, data_angle)
     data_6dcmd = six_to_cmd(data_6d, data_cmd)
     save_file(out_6dcmd_path, data_6dcmd)
-
 
 
     
