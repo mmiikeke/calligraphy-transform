@@ -32,8 +32,48 @@ def find_anchor(data_3d, z):
 def angle2deg(angle):
     return angle * math.pi / 180 
 
+def find_draw_points(data_3d, data_cmd, thresholdZ):
+    output_data_3d = list()
+    output_data_cmd = list()
+
+    for i, _ in enumerate(data_3d):
+        if data_3d[i][-1] < thresholdZ:
+            output_data_3d.append(data_3d[i])
+            output_data_cmd.append(data_cmd[i])
+
+    return np.array(output_data_3d), np.array(output_data_cmd)
+
+def find_stroke(data_cmd):
+    stroke = [0]
+    flag = data_cmd[0][-1]
+
+    for i, data in enumerate(data_cmd):
+        if flag != data[-1]:
+            stroke.append(i)
+            flag = data[-1]
+
+    return stroke
+
 def visualize(data_3d):
     plt.plot([i[0] for i in data_3d], [i[1] for i in data_3d], 'ro')
+    plt.show()
+
+def visualize_line(data_3d, data_cmd, thresholdZ, with_thickness = False):
+    data_3d, data_cmd = find_draw_points(data_3d, data_cmd, thresholdZ)
+    
+    stroke = find_stroke(data_cmd)
+    
+    if not with_thickness: 
+        for i in range(len(stroke)-1):
+            line = data_3d[stroke[i]:stroke[i+1]]
+            plt.plot([i[0] for i in line], [i[1] for i in line], c='darkslategray')
+    else:
+        for i in range(len(data_3d)-1):
+            if not (i+1 in stroke):
+                x = [data_3d[i][0], data_3d[i+1][0]]
+                y = [data_3d[i][1], data_3d[i+1][1]]
+                width = (thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*2
+                plt.plot(x, y, linewidth=width, c='darkslategray')
     plt.show()
 
 def six_to_cmd(data_6d, data_cmd):
@@ -153,6 +193,13 @@ if __name__ == '__main__':
     data_6d, data_cmd = read_file(in_6dcmd_path, is_6dcmd=True)
 
     data_3d, data_angle = six_to_three(data_6d)
+
+    visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)
+
+    """
+    data_6d, data_cmd = read_file(in_6dcmd_path, is_6dcmd=True)
+
+    data_3d, data_angle = six_to_three(data_6d)
     save_file(out_3d_path, data_3d)
     #visualize(data_3d)
 
@@ -163,6 +210,7 @@ if __name__ == '__main__':
     data_6d = three_to_six(data_3d, data_angle)
     data_6dcmd = six_to_cmd(data_6d, data_cmd)
     save_file(out_6dcmd_path, data_6dcmd)
+    """
 
 
     
