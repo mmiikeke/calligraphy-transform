@@ -241,25 +241,18 @@ class callifraphy_transform():
 
         return self.transform(data_3d, anchor=anchor, ratio=ratio, translate=translate)
 
-if __name__ == '__main__':
-    in_6dcmd_path = '../data/謝.txt'
-    out_3d_path = '../output/3d.txt'
-    out_3dtransform_path = '../output/3dtransform.txt'
-    out_6dcmd_path = '../output/6dcmd.txt'
+    #Example
+    #ca = callifraphy_transform()
+    #z0_point = 5.5 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]
+    #data_6d, data_cmd = ca.read_file(in_6dcmd_path, is_6dcmd=True)
 
-    ca = callifraphy_transform()
-
-    z0_point = 5.5 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]
-
-    data_6d, data_cmd = ca.read_file(in_6dcmd_path, is_6dcmd=True)
-
-    data_3d, data_angle = ca.six_to_three(data_6d)
-    ca.visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)
+    #data_3d, data_angle = ca.six_to_three(data_6d)
+    #ca.visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)
     #save_file(out_3d_path, data_3d)
 
     #data_3d_transformed = ca.transform(data_3d, anchor=find_anchor(data_3d, z0_point), ratio=[0.5, 0.5, 0.35], translate=[0, 0, 0])
-    data_3d_transformed = ca.transform_to_rect(data_3d, [-40,40,-40,40], z0_point, ratio_z=0, translate_z=0, center=True, deform=False)
-    ca.visualize_line(data_3d_transformed, data_cmd, z0_point, show_in_rect=[-40,40,-40,40], with_thickness=True)
+    #data_3d_transformed = ca.transform_to_rect(data_3d, [-40,40,-40,40], z0_point, ratio_z=0, translate_z=0, center=True, deform=False)
+    #ca.visualize_line(data_3d_transformed, data_cmd, z0_point, show_in_rect=[-40,40,-40,40], with_thickness=True)
     #save_file(out_3dtransform_path, data_3d_transform)
     
     #data_6d = ca.three_to_six(data_3d_transform, data_angle)
