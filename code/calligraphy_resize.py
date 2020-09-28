@@ -22,26 +22,30 @@ def read_file(path, is_6dcmd = True):
         for row in txtFile:
             data.append([float(i) for i in row.split()])
         return np.array(data)
-        
-def find_anchor(data_3d, z):
+
+def find_rect(data_3d):
     datax = [i[0] for i in data_3d]
     datay = [i[1] for i in data_3d]
 
-    return [min(datax), max(datay), z]
+    return min(datax), max(datax), min(datay), max(datay)
 
-def angle2deg(angle):
-    return angle * math.pi / 180 
-
-def find_draw_points(data_3d, data_cmd, thresholdZ):
+def find_draw_points(data_3d, thresholdZ, data_cmd=None):
     output_data_3d = list()
     output_data_cmd = list()
 
-    for i, _ in enumerate(data_3d):
-        if data_3d[i][-1] < thresholdZ:
-            output_data_3d.append(data_3d[i])
-            output_data_cmd.append(data_cmd[i])
+    if not (data_cmd is None):
+        for i, _ in enumerate(data_3d):
+            if data_3d[i][-1] < thresholdZ:
+                output_data_3d.append(data_3d[i])
+                output_data_cmd.append(data_cmd[i])
 
-    return np.array(output_data_3d), np.array(output_data_cmd)
+        return np.array(output_data_3d), np.array(output_data_cmd)
+    else:
+        for i, _ in enumerate(data_3d):
+            if data_3d[i][-1] < thresholdZ:
+                output_data_3d.append(data_3d[i])
+
+        return np.array(output_data_3d)
 
 def find_stroke(data_cmd):
     stroke = [0]
@@ -54,12 +58,25 @@ def find_stroke(data_cmd):
 
     return stroke
 
+def find_anchor(data_3d, thresholdZ):
+    data_3d = find_draw_points(data_3d, thresholdZ)
+
+    rect = find_rect(data_3d)
+
+    return [rect[0], rect[2], thresholdZ]
+
+def sigmoid(x):
+    return 1/(1+math.exp(-x))
+
+def angle2deg(angle):
+    return angle * math.pi / 180 
+
 def visualize(data_3d):
     plt.plot([i[0] for i in data_3d], [i[1] for i in data_3d], 'ro')
     plt.show()
 
-def visualize_dot(data_3d, data_cmd, thresholdZ, with_thickness = False):
-    data_3d, data_cmd = find_draw_points(data_3d, data_cmd, thresholdZ)
+def visualize_dot(data_3d, data_cmd, thresholdZ, show_in_rect=None, with_thickness = False):
+    data_3d = find_draw_points(data_3d, thresholdZ)
 
     data = {
         'a': np.array([i[0] for i in data_3d]),
@@ -72,10 +89,14 @@ def visualize_dot(data_3d, data_cmd, thresholdZ, with_thickness = False):
         plt.scatter('a', 'b', c='darkslategray', data=data)
     else:
         plt.scatter('a', 'b', c='darkslategray', s='s', data=data)
+
+    if not show_in_rect is None:
+        plt.xlim(show_in_rect[0], show_in_rect[1])
+        plt.ylim(show_in_rect[2], show_in_rect[3])
     plt.show()
 
-def visualize_line(data_3d, data_cmd, thresholdZ, with_thickness = False):
-    data_3d, data_cmd = find_draw_points(data_3d, data_cmd, thresholdZ)
+def visualize_line(data_3d, data_cmd, thresholdZ, show_in_rect=None, with_thickness=False, paint_width = 15):
+    data_3d, data_cmd = find_draw_points(data_3d, thresholdZ, data_cmd=data_cmd)
     
     stroke = find_stroke(data_cmd)
     
@@ -88,8 +109,13 @@ def visualize_line(data_3d, data_cmd, thresholdZ, with_thickness = False):
             if not (i+1 in stroke):
                 x = [data_3d[i][0], data_3d[i+1][0]]
                 y = [data_3d[i][1], data_3d[i+1][1]]
-                width = (thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*2
+                width = (thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*1+5
+                #width = sigmoid((thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*0.2)*paint_width
                 plt.plot(x, y, linewidth=width, c='darkslategray')
+    
+    if not show_in_rect is None:
+        plt.xlim(show_in_rect[0], show_in_rect[1])
+        plt.ylim(show_in_rect[2], show_in_rect[3])
     plt.show()
 
 def six_to_cmd(data_6d, data_cmd):
@@ -112,14 +138,14 @@ def six_to_cmd(data_6d, data_cmd):
     
     return data_6dcmd
 
-def three_to_six(data_3d, data_angle, length = [0,0,-185]):
+def three_to_six(data_3d, data_angle, length=[0,0,-185]):
     data_concate = np.append(data_3d, data_angle, 1)
     out_data_3d, _ = six_to_three(data_concate, length)
     out_data_6d = np.append(out_data_3d, data_angle, 1)
 
     return out_data_6d
 
-def six_to_three(data_6d, length = [0,0,185]):
+def six_to_three(data_6d, length=[0,0,185]):
     data_3d = list()
     data_angle = list()
 
@@ -168,7 +194,7 @@ def six_to_three(data_6d, length = [0,0,185]):
 
     return np.array(data_3d), np.array(data_angle)
 
-def resize(data, anchor, ratio, translate):
+def resize(data_3d, anchor=[0,0,0], ratio=[1,1,1], translate=[0,0,0]):
     out_data = list()
     
     affine1 = np.array([
@@ -185,7 +211,7 @@ def resize(data, anchor, ratio, translate):
         [0, 0, 0, 1]
     ])
     
-    for row in data:
+    for row in data_3d:
         row = np.append(row,1).reshape(4, 1)
         row = np.dot(affine1, row)
         row = np.dot(affine2, row)
@@ -193,29 +219,56 @@ def resize(data, anchor, ratio, translate):
 
     return np.array(out_data)
 
+def resize_to_rect(data_3d, to_rect, thresholdZ, ratio_z=0, translate_z=0, center=True, deform=False):
+    """
+    if ratio_z == 0, auto set ratio_z
+    """
+
+    draw_points = find_draw_points(data_3d, thresholdZ)
+    from_rect = find_rect(draw_points)
+
+    from_shape = [from_rect[1]-from_rect[0], from_rect[3]-from_rect[2]]
+    to_shape = [to_rect[1]-to_rect[0], to_rect[3]-to_rect[2]]
+
+    width_ratio = to_shape[0]/from_shape[0]
+    height_ratio = to_shape[1]/from_shape[1]
+
+    ratio = min(width_ratio, height_ratio)
+    ratio = [ratio, ratio, ratio if ratio_z==0 else ratio_z]
+    anchor = [from_rect[0], from_rect[2], thresholdZ]
+    translate = [to_rect[0]-from_rect[0], to_rect[2]-from_rect[2], translate_z]
+
+    if center:
+        if width_ratio > height_ratio:
+            translate[0] += (to_shape[0] - (from_shape[0]*height_ratio))/2
+        else:
+            translate[1] += (to_shape[1] - (from_shape[1]*width_ratio))/2
+
+    return resize(data_3d, anchor=anchor, ratio=ratio, translate=translate)
+
 if __name__ == '__main__':
-    in_6dcmd_path = '../data/代.txt'
+    in_6dcmd_path = '../data/謝.txt'
     out_3d_path = '../output/代3d.txt'
     out_3dresized_path = '../output/代3dresized.txt'
     out_6dcmd_path = '../output/代6dcmd.txt'
 
     z0_point = 5.5 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]
-    
-    #visualize(data_3d)
-    #visualize_dot(data_3d, data_cmd, z0_point, with_thickness=True)
-    #visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)
-    
+
     data_6d, data_cmd = read_file(in_6dcmd_path, is_6dcmd=True)
 
     data_3d, data_angle = six_to_three(data_6d)
-    save_file(out_3d_path, data_3d)
+    visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)
+    #save_file(out_3d_path, data_3d)
 
-    data_3d_resized = resize(data_3d, find_anchor(data_3d, z0_point), [0.5, 0.5, 0.35], [0, 100, -4])
-    save_file(out_3dresized_path, data_3d_resized)
+    #data_3d_resized = resize(data_3d, anchor=find_anchor(data_3d, z0_point), ratio=[0.5, 0.5, 0.35], translate=[0, 0, 0])
+    data_3d_resized = resize_to_rect(data_3d, [-40,40,-40,40], z0_point, ratio_z=0, translate_z=0, center=False, deform=False)
+    visualize_line(data_3d_resized, data_cmd, z0_point, with_thickness=True)
+    #save_file(out_3dresized_path, data_3d_resized)
     
-    data_6d = three_to_six(data_3d_resized, data_angle)
-    data_6dcmd = six_to_cmd(data_6d, data_cmd)
-    save_file(out_6dcmd_path, data_6dcmd)
+    #data_6d = three_to_six(data_3d_resized, data_angle)
+    #data_6dcmd = six_to_cmd(data_6d, data_cmd)
+    #save_file(out_6dcmd_path, data_6dcmd)
+    
     
 
 
