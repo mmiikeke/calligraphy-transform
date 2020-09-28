@@ -1,2 +1,2 @@
-# calligraphy-resize
-Resize calligraphy wrote by TM robot
+# calligraphy-transform
+Resize and translate calligraphy data on TM robot
