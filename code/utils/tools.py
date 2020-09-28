@@ -1,4 +1,5 @@
 import os
+import math
 import pandas as pd
 
 def save_file(savepath, data, sep = ' ', index = False, header = False, warning = True):
@@ -13,3 +14,9 @@ def save_file(savepath, data, sep = ' ', index = False, header = False, warning 
 
     print('Save file: ' + savepath)
     df.to_csv(savepath, index=index, header=header, sep=' ')
+
+def sigmoid(x):
+    return 1/(1+math.exp(-x))
+
+def angle2deg(angle):
+    return angle * math.pi / 180 
