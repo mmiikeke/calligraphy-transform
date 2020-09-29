@@ -1,3 +1,4 @@
+import os
 import math
 import numpy as np
 import pandas as pd
@@ -6,6 +7,10 @@ from utils.tools import save_file, sigmoid, angle2deg
 
 class callifraphy_transform():
     def read_file(self, path, is_6dcmd = True):
+
+        if not os.path.isfile(path):
+            raise ValueError(f'Error: File not exist! {path}')
+
         data = list()
         txtFile = open(path)
 
@@ -189,6 +194,11 @@ class callifraphy_transform():
 
         return np.array(data_3d), np.array(data_angle)
 
+    def check_3d(self, data_3d):
+        dataz = [i[2] for i in data_3d]
+        if min(dataz) < -10:
+            print(f'Warning: z axis is too small in data_3d, z = {min(dataz)}')
+
     def transform(self, data_3d, anchor=[0,0,0], ratio=[1,1,1], translate=[0,0,0]):
         out_data = list()
         
@@ -211,6 +221,8 @@ class callifraphy_transform():
             row = np.dot(affine1, row)
             row = np.dot(affine2, row)
             out_data.append([row[0][0], row[1][0], row[2][0]])
+
+        self.check_3d(out_data)
 
         return np.array(out_data)
 
