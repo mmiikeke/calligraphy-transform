@@ -55,17 +55,5 @@ if __name__ == '__main__':
     
     plt.xlim(startx, total_width)
     plt.ylim(starty, total_height)
+    plt.gca().set_aspect("equal")
     plt.show()
-    #data_6d, data_cmd = calligraphy_tool.read_file(path, is_6dcmd=True)
-    #data_3d, data_angle = calligraphy_tool.six_to_three(data_6d)
-    #visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)
-    #save_file(out_3d_path, data_3d)
-
-    #data_3d_transformed = transform(data_3d, anchor=find_anchor(data_3d, z0_point), ratio=[0.5, 0.5, 0.35], translate=[0, 0, 0])
-    #data_3d_transformed = transform_to_rect(data_3d, [-40,40,-40,40], z0_point, ratio_z=0, translate_z=0, center=False, deform=False)
-    #visualize_line(data_3d_transformed, data_cmd, z0_point, with_thickness=True)
-    #save_file(out_3dtransformed_path, data_3d_transformed)
-    
-    #data_6d = three_to_six(data_3d_transformed, data_angle)
-    #data_6dcmd = six_to_cmd(data_6d, data_cmd)
-    #save_file(out_6dcmd_path, data_6dcmd)
