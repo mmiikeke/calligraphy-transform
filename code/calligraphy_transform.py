@@ -199,7 +199,9 @@ class callifraphy_transform():
         if min(dataz) < -10:
             print(f'Warning: z axis is too small in data_3d, z = {min(dataz)}')
 
-    def transform(self, data_3d, anchor=[0,0,0], ratio=[1,1,1], translate=[0,0,0]):
+    def transform(self, data_3d, anchor=[0,0,0], ratio=[1,1,1], translate=[0,0,0], angle=0):
+        angle = angle2deg(angle)
+
         out_data = list()
         
         affine1 = np.array([
@@ -210,6 +212,13 @@ class callifraphy_transform():
         ])
 
         affine2 = np.array([
+            [math.cos(angle), -math.sin(angle), 0, 0],
+            [math.sin(angle), math.cos(angle), 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ])
+
+        affine3 = np.array([
             [ratio[0], 0, 0, anchor[0]+translate[0]],
             [0, ratio[1], 0, anchor[1]+translate[1]],
             [0, 0, ratio[2], anchor[2]+translate[2]],
@@ -220,6 +229,7 @@ class callifraphy_transform():
             row = np.append(row,1).reshape(4, 1)
             row = np.dot(affine1, row)
             row = np.dot(affine2, row)
+            row = np.dot(affine3, row)
             out_data.append([row[0][0], row[1][0], row[2][0]])
 
         self.check_3d(out_data)
