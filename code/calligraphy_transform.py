@@ -118,7 +118,12 @@ class callifraphy_transform():
         if plot:
             plt.show()
 
+    def check_length_eq(self, data1, data2):
+        if len(data1) != len(data2):
+            raise ValueError('Error: len(data1) != len(data2)')
+
     def six_to_cmd(self, data_6d, data_cmd):
+        self.check_length_eq(data_6d, data_cmd)
         data_6dcmd = list()
         len_data = len(data_6d)
 
@@ -139,11 +144,26 @@ class callifraphy_transform():
         return data_6dcmd
 
     def three_to_six(self, data_3d, data_angle, length=[0,0,-185]):
+        self.check_length_eq(data_3d, data_angle)
         data_concate = np.append(data_3d, data_angle, 1)
         out_data_3d, _ = self.six_to_three(data_concate, length)
         out_data_6d = np.append(out_data_3d, data_angle, 1)
 
         return out_data_6d
+    
+    def data_6d_split(self, data_3d, start, end, axis=0):
+        data1 = np.append(data_3d[:start], data_3d[end:], axis)
+        data2 = data_3d[start:end]
+
+        return data1, data2
+    
+    def data_6d_concate(self, data1, data2, append_to=-1, axis=0):
+        data_u = data1[:append_to+1]
+        data_d = data1[append_to+1:]
+        data = np.append(data_u, data2, axis)
+        data = np.append(data, data_d, axis)
+
+        return data
 
     def six_to_three(self, data_6d, length=[0,0,185]):
         data_3d = list()
@@ -195,9 +215,12 @@ class callifraphy_transform():
         return np.array(data_3d), np.array(data_angle)
 
     def check_3d(self, data_3d):
+        datay = [i[1] for i in data_3d]
         dataz = [i[2] for i in data_3d]
         if min(dataz) < -10:
             print(f'Warning: z axis is too small in data_3d, z = {min(dataz)}')
+        if min(datay) < 250:
+            print(f'Warning: y axix is too small in data_3d, y = {min(datay)}')
 
     def transform(self, data_3d, anchor=[0,0,0], ratio=[1,1,1], translate=[0,0,0], angle=0):
         angle = angle2deg(angle)

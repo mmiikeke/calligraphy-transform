@@ -29,12 +29,12 @@ if __name__ == '__main__':
             rects.append([xs, xl, ys, yl])
     
     plt.figure(figsize=(10,3.66))
-    """
+    
     for rect in rects:
         x = [rect[0], rect[1], rect[1], rect[0], rect[0]]
         y = [rect[2], rect[2], rect[3], rect[3], rect[2]]
         plt.plot(x, y, c='k')
-    """
+    
     rects[4][0] += 5
     rects[4][1] -= 5
     rects[4][2] += 5
@@ -66,7 +66,7 @@ if __name__ == '__main__':
         data_3d_transformed = calligraphy_tool.transform_to_rect(data_3d, rects[i], z0_point, ratio_z=0.3, translate_z=0, center=True, deform=False)
 
         if i == 0: #韌
-            data_3d_transformed = calligraphy_tool.transform(data_3d_transformed, translate=[0, 0, -0.3])
+            data_3d_transformed = calligraphy_tool.transform(data_3d_transformed, translate=[0, 0, 0])
         if i == 1: #性
             data_3d_transformed = calligraphy_tool.transform(data_3d_transformed, translate=[0, -2, 0])
         if i == 2: #城
