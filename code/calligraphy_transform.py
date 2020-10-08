@@ -1,5 +1,6 @@
 import os
 import math
+import copy
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -7,7 +8,9 @@ from utils.tools import save_file, sigmoid, angle2deg
 
 class callifraphy_transform():
     def read_file(self, path, is_6dcmd = True):
-
+        """
+        Read 6dcmd txt files to numpy array.
+        """
         if not os.path.isfile(path):
             raise ValueError(f'Error: File not exist! {path}')
 
@@ -30,12 +33,18 @@ class callifraphy_transform():
             return np.array(data)
 
     def find_rect(self, data_3d):
+        """
+        Find the bounding box of data.
+        """
         datax = [i[0] for i in data_3d]
         datay = [i[1] for i in data_3d]
 
         return min(datax), max(datax), min(datay), max(datay)
 
     def find_draw_points(self, data_3d, thresholdZ, data_cmd=None):
+        """
+        Find points that z < thresholdZ.
+        """
         output_data_3d = list()
         output_data_cmd = list()
 
@@ -54,6 +63,9 @@ class callifraphy_transform():
             return np.array(output_data_3d)
 
     def find_stroke(self, data_cmd):
+        """
+        Return every stroke's start position, including end position.
+        """
         stroke = [0]
         flag = data_cmd[0][-1]
 
@@ -61,10 +73,15 @@ class callifraphy_transform():
             if flag != data[-1]:
                 stroke.append(i)
                 flag = data[-1]
+        
+        stroke.append(len(data_cmd))
 
         return stroke
 
     def find_anchor(self, data_3d, thresholdZ):
+        """
+        Return left, down point.
+        """
         data_3d = self.find_draw_points(data_3d, thresholdZ)
 
         rect = self.find_rect(data_3d)
@@ -94,17 +111,16 @@ class callifraphy_transform():
             plt.show()
 
     def visualize_line(self, data_3d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, show_in_rect=None, plot=True):
-        data_3d, data_cmd = self.find_draw_points(data_3d, thresholdZ, data_cmd=data_cmd)
-        
-        stroke = self.find_stroke(data_cmd)
-        
         if not with_thickness: 
+            data_3d, data_cmd = self.find_draw_points(data_3d, thresholdZ, data_cmd=data_cmd)
+            stroke = self.find_stroke(data_cmd)
             for i in range(len(stroke)-1):
                 line = data_3d[stroke[i]:stroke[i+1]]
                 plt.plot([i[0] for i in line], [i[1] for i in line], c='darkslategray')
         else:
+            stroke = self.find_stroke(data_cmd)
             for i in range(len(data_3d)-1):
-                if not (i+1 in stroke):
+                if (not (i+1 in stroke)) and ((data_3d[i][2] < thresholdZ) and (data_3d[i+1][2] < thresholdZ)):
                     x = [data_3d[i][0], data_3d[i+1][0]]
                     y = [data_3d[i][1], data_3d[i+1][1]]
                     width = (thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*2
@@ -122,10 +138,13 @@ class callifraphy_transform():
         if len(data1) != len(data2):
             raise ValueError('Error: len(data1) != len(data2)')
 
-    def six_to_cmd(self, data_6d, data_cmd):
+    def six_to_cmd(self, data_6d, data_cmd, assign_stroke = True):
         self.check_length_eq(data_6d, data_cmd)
         data_6dcmd = list()
         len_data = len(data_6d)
+
+        if assign_stroke:
+            data_cmd = self.assign_cmd_stroke(data_cmd)
 
         for i in range(len_data):
             data_6dcmd.append([
@@ -151,19 +170,41 @@ class callifraphy_transform():
 
         return out_data_6d
     
-    def data_6d_split(self, data_3d, start, end, axis=0):
-        data1 = np.append(data_3d[:start], data_3d[end:], axis)
-        data2 = data_3d[start:end]
+    def data_6d_cmd_split(self, data_6d, data_cmd, start_stroke, end_stroke, axis=0):
+        stroke = self.find_stroke(data_cmd)
+        
+        data_6d_1 = np.append(data_6d[:stroke[start_stroke]], data_6d[stroke[end_stroke]:], axis)
+        data_6d_2 = data_6d[stroke[start_stroke]:stroke[end_stroke]]
 
-        return data1, data2
+        data_cmd_1 = np.append(data_cmd[:stroke[start_stroke]], data_cmd[stroke[end_stroke]:], axis)
+        data_cmd_2 = data_cmd[stroke[start_stroke]:stroke[end_stroke]]
+
+        return data_6d_1, data_6d_2, data_cmd_1, data_cmd_2
     
-    def data_6d_concate(self, data1, data2, append_to=-1, axis=0):
-        data_u = data1[:append_to+1]
-        data_d = data1[append_to+1:]
-        data = np.append(data_u, data2, axis)
-        data = np.append(data, data_d, axis)
+    def assign_cmd_stroke(self, data_cmd):
+        stroke = self.find_stroke(data_cmd)
+        out_data_cmd = copy.deepcopy(data_cmd)
 
-        return data
+        for i in range(len(stroke)-1):
+            for j in range(stroke[i], stroke[i+1]):
+                out_data_cmd[j][-1] = f'stroke{i}'
+
+        return out_data_cmd
+
+    def data_6d_cmd_concate(self, data_6d_1, data_6d_2, data_cmd_1, data_cmd_2, append_to=-1, axis=0):
+        stroke = self.find_stroke(data_cmd_1)
+
+        data_6d_u = data_6d_1[stroke[append_to+1]:]
+        data_6d_d = data_6d_1[:stroke[append_to+1]]
+        data_6d = np.append(data_6d_u, data_6d_2, axis)
+        data_6d = np.append(data_6d, data_6d_d, axis)
+
+        data_cmd_u = data_cmd_1[stroke[append_to+1]:]
+        data_cmd_d = data_cmd_1[:stroke[append_to+1]]
+        data_cmd = np.append(data_cmd_u, data_cmd_2, axis)
+        data_cmd = np.append(data_cmd, data_cmd_d, axis)
+
+        return data_6d, data_cmd
 
     def six_to_three(self, data_6d, length=[0,0,185]):
         data_3d = list()
