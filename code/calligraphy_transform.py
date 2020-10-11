@@ -326,21 +326,3 @@ class callifraphy_transform():
                 translate[1] += (to_shape[1] - (from_shape[1]*width_ratio))/2
 
         return self.transform(data_3d, anchor=anchor, ratio=ratio, translate=translate)
-
-    #Example
-    #ca = callifraphy_transform()
-    #z0_point = 5.5 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]
-    #data_6d, data_cmd = ca.read_file(in_6dcmd_path, is_6dcmd=True)
-
-    #data_3d, data_angle = ca.six_to_three(data_6d)
-    #ca.visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)
-    #save_file(out_3d_path, data_3d)
-
-    #data_3d_transformed = ca.transform(data_3d, anchor=find_anchor(data_3d, z0_point), ratio=[0.5, 0.5, 0.35], translate=[0, 0, 0])
-    #data_3d_transformed = ca.transform_to_rect(data_3d, [-40,40,-40,40], z0_point, ratio_z=0, translate_z=0, center=True, deform=False)
-    #ca.visualize_line(data_3d_transformed, data_cmd, z0_point, show_in_rect=[-40,40,-40,40], with_thickness=True)
-    #save_file(out_3dtransform_path, data_3d_transform)
-    
-    #data_6d = ca.three_to_six(data_3d_transform, data_angle)
-    #data_6dcmd = ca.six_to_cmd(data_6d, data_cmd)
-    #save_file(out_6dcmd_path, data_6dcmd)
