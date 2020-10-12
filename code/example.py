@@ -10,7 +10,7 @@ if __name__ == '__main__':
     output_path4 = '../o/6dcmd.txt'
 
     calligraphy_tool = callifraphy_transform()
-    z0_point = 5.5 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]
+    z0_point = 5.5 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322] -2.85887236e-03 [-130.099, 459.278,182.715,175.55,-7.84099,70.2961]
     data_6d, data_cmd = calligraphy_tool.read_file(path, is_6dcmd=True)
     data_3d, data_angle = calligraphy_tool.six_to_three(data_6d)
     calligraphy_tool.visualize_line(data_3d, data_cmd, z0_point, with_thickness=True)

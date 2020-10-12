@@ -111,6 +111,8 @@ class callifraphy_transform():
             plt.show()
 
     def visualize_line(self, data_3d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, show_in_rect=None, plot=True):
+        thresholdZ += 3
+
         if not with_thickness: 
             data_3d, data_cmd = self.find_draw_points(data_3d, thresholdZ, data_cmd=data_cmd)
             stroke = self.find_stroke(data_cmd)
@@ -196,13 +198,13 @@ class callifraphy_transform():
 
         data_6d_u = data_6d_1[stroke[append_to+1]:]
         data_6d_d = data_6d_1[:stroke[append_to+1]]
-        data_6d = np.append(data_6d_u, data_6d_2, axis)
-        data_6d = np.append(data_6d, data_6d_d, axis)
+        data_6d = np.append(data_6d_d, data_6d_2, axis)
+        data_6d = np.append(data_6d, data_6d_u, axis)
 
         data_cmd_u = data_cmd_1[stroke[append_to+1]:]
         data_cmd_d = data_cmd_1[:stroke[append_to+1]]
-        data_cmd = np.append(data_cmd_u, data_cmd_2, axis)
-        data_cmd = np.append(data_cmd, data_cmd_d, axis)
+        data_cmd = np.append(data_cmd_d, data_cmd_2, axis)
+        data_cmd = np.append(data_cmd, data_cmd_u, axis)
 
         return data_6d, data_cmd
 
