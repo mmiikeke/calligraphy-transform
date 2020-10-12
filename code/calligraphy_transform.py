@@ -193,16 +193,47 @@ class callifraphy_transform():
 
         return out_data_cmd
     
-    def stroke_transformation(self, data_6d, data_cmd, stroke_start, stroke_end, z0_point, ratio=[1, 1, 1], translate=[0, 0, 0], angle=0):
+    def transform_6d_stroke(self, data_6d, data_cmd, stroke_start, stroke_end, thresholdZ, anchor=0, ratio=[1, 1, 1], translate=[0, 0, 0], angle=0):
+        """
+        Auto set anchor if anchor = 0.
+        """
         data_6d_1, data_6d_2, data_cmd_1, data_cmd_2 = self.data_6d_cmd_split(data_6d, data_cmd, stroke_start, stroke_end)
         
         data_3d_2, data_angle_2 = self.six_to_three(data_6d_2)
-        data_3d_2 = self.transform(data_3d_2, self.find_anchor(data_3d_2, z0_point), ratio, translate, angle)
+
+        if anchor == 0:
+            anchor = self.find_anchor(data_3d_2, thresholdZ)
+
+        data_3d_2 = self.transform_3d(data_3d_2, anchor, ratio, translate, angle)
         data_6d_2 = self.three_to_six(data_3d_2, data_angle_2)
 
         data_6d, data_cmd = self.data_6d_cmd_concate(data_6d_1, data_6d_2, data_cmd_1, data_cmd_2, stroke_start-1)
 
         return data_6d, data_cmd
+    
+    def transform_6d(self, data_6d, thresholdZ, anchor=0, ratio=[1, 1, 1], translate=[0, 0, 0], angle=0):
+        """
+        Auto set anchor if anchor = 0.
+        """
+        data_3d, data_angle = self.six_to_three(data_6d)
+
+        if anchor == 0:
+            anchor = self.find_anchor(data_3d, thresholdZ)
+
+        data_3d = self.transform_3d(data_3d, anchor, ratio, translate, angle)
+        data_6d = self.three_to_six(data_3d, data_angle)
+
+        return data_6d
+
+    def transform_to_rect_6d(self, data_6d, to_rect, thresholdZ, ratio_z=0, translate_z=0, center=True, deform=False):
+        """
+        Auto set ratio_z if ratio_z = 0.
+        """
+        data_3d, data_angle = self.six_to_three(data_6d)
+        data_3d = self.transform_to_rect_3d(data_3d, to_rect, thresholdZ, ratio_z=0, translate_z=0, center=True, deform=False)
+        data_6d = self.three_to_six(data_3d, data_angle)
+        
+        return data_6d
 
     def data_6d_cmd_concate(self, data_6d_1, data_6d_2, data_cmd_1, data_cmd_2, append_to=-1, axis=0):
         stroke = self.find_stroke(data_cmd_1)
@@ -281,7 +312,7 @@ class callifraphy_transform():
         if min(datay) < 250:
             print(f'Warning: y axix is too small in data_3d, y = {min(datay)}')
 
-    def transform(self, data_3d, anchor=[0,0,0], ratio=[1,1,1], translate=[0,0,0], angle=0):
+    def transform_3d(self, data_3d, anchor=[0,0,0], ratio=[1,1,1], translate=[0,0,0], angle=0):
         angle = angle2deg(angle)
 
         out_data = list()
@@ -318,9 +349,9 @@ class callifraphy_transform():
 
         return np.array(out_data)
 
-    def transform_to_rect(self, data_3d, to_rect, thresholdZ, ratio_z=0, translate_z=0, center=True, deform=False):
+    def transform_to_rect_3d(self, data_3d, to_rect, thresholdZ, ratio_z=0, translate_z=0, center=True, deform=False):
         """
-        if ratio_z == 0, auto set ratio_z
+        Auto set ratio_z if ratio_z = 0.
         """
 
         draw_points = self.find_draw_points(data_3d, thresholdZ)
@@ -343,4 +374,4 @@ class callifraphy_transform():
             else:
                 translate[1] += (to_shape[1] - (from_shape[1]*width_ratio))/2
 
-        return self.transform(data_3d, anchor=anchor, ratio=ratio, translate=translate)
+        return self.transform_3d(data_3d, anchor=anchor, ratio=ratio, translate=translate)
