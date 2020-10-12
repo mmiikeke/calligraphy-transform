@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from utils.tools import save_file, sigmoid, angle2deg
 
-class callifraphy_transform():
+class calligraphy_transform():
     def read_file(self, path, is_6dcmd = True):
         """
         Read 6dcmd txt files to numpy array.
@@ -88,7 +88,7 @@ class callifraphy_transform():
 
         return [rect[0], rect[2], thresholdZ]
 
-    def visualize_dot(self, data_3d, data_cmd, thresholdZ, with_thickness = False, show_in_rect=None, plot=True):
+    def visualize_dot_3d(self, data_3d, data_cmd, thresholdZ, with_thickness = False, show_in_rect=None, plot=True):
         data_3d = self.find_draw_points(data_3d, thresholdZ)
 
         data = {
@@ -110,8 +110,8 @@ class callifraphy_transform():
         if plot:
             plt.show()
 
-    def visualize_line(self, data_3d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, show_in_rect=None, plot=True):
-        thresholdZ += 1
+    def visualize_line_3d(self, data_3d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, show_in_rect=None, plot=True):
+        thresholdZ += 3
 
         if not with_thickness: 
             data_3d, data_cmd = self.find_draw_points(data_3d, thresholdZ, data_cmd=data_cmd)
@@ -125,7 +125,7 @@ class callifraphy_transform():
                 if (not (i+1 in stroke)) and ((data_3d[i][2] < thresholdZ) and (data_3d[i+1][2] < thresholdZ)):
                     x = [data_3d[i][0], data_3d[i+1][0]]
                     y = [data_3d[i][1], data_3d[i+1][1]]
-                    width = (thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*2
+                    width = (thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*1.8
                     #width = sigmoid((thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*0.2)*paint_width
                     plt.plot(x, y, linewidth=width, c='darkslategray')
         
@@ -135,6 +135,10 @@ class callifraphy_transform():
         
         if plot:
             plt.show()
+    
+    def visualize_line_6d(self, data_6d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, show_in_rect=None, plot=True):
+        data_3d, _ = self.six_to_three(data_6d)
+        self.visualize_line_3d(data_3d, data_cmd, thresholdZ, with_thickness, paint_width, show_in_rect, plot)
 
     def check_length_eq(self, data1, data2):
         if len(data1) != len(data2):
@@ -230,9 +234,9 @@ class callifraphy_transform():
         Auto set ratio_z if ratio_z = 0.
         """
         data_3d, data_angle = self.six_to_three(data_6d)
-        data_3d = self.transform_to_rect_3d(data_3d, to_rect, thresholdZ, ratio_z=0, translate_z=0, center=True, deform=False)
+        data_3d = self.transform_to_rect_3d(data_3d, to_rect, thresholdZ, ratio_z, translate_z, center=True, deform=False)
         data_6d = self.three_to_six(data_3d, data_angle)
-        
+
         return data_6d
 
     def data_6d_cmd_concate(self, data_6d_1, data_6d_2, data_cmd_1, data_cmd_2, append_to=-1, axis=0):
