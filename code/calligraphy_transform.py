@@ -111,7 +111,7 @@ class callifraphy_transform():
             plt.show()
 
     def visualize_line(self, data_3d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, show_in_rect=None, plot=True):
-        thresholdZ += 3
+        thresholdZ += 1
 
         if not with_thickness: 
             data_3d, data_cmd = self.find_draw_points(data_3d, thresholdZ, data_cmd=data_cmd)
@@ -192,17 +192,33 @@ class callifraphy_transform():
                 out_data_cmd[j][-1] = f'stroke{i}'
 
         return out_data_cmd
+    
+    def stroke_transformation(self, data_6d, data_cmd, stroke_start, stroke_end, z0_point, ratio=[1, 1, 1], translate=[0, 0, 0], angle=0):
+        data_6d_1, data_6d_2, data_cmd_1, data_cmd_2 = self.data_6d_cmd_split(data_6d, data_cmd, stroke_start, stroke_end)
+        
+        data_3d_2, data_angle_2 = self.six_to_three(data_6d_2)
+        data_3d_2 = self.transform(data_3d_2, self.find_anchor(data_3d_2, z0_point), ratio, translate, angle)
+        data_6d_2 = self.three_to_six(data_3d_2, data_angle_2)
+
+        data_6d, data_cmd = self.data_6d_cmd_concate(data_6d_1, data_6d_2, data_cmd_1, data_cmd_2, stroke_start-1)
+
+        return data_6d, data_cmd
 
     def data_6d_cmd_concate(self, data_6d_1, data_6d_2, data_cmd_1, data_cmd_2, append_to=-1, axis=0):
         stroke = self.find_stroke(data_cmd_1)
 
-        data_6d_u = data_6d_1[stroke[append_to+1]:]
-        data_6d_d = data_6d_1[:stroke[append_to+1]]
+        if append_to == -1:
+            flag = 0
+        else:
+            flag = stroke[append_to+1]
+
+        data_6d_u = data_6d_1[flag:]
+        data_6d_d = data_6d_1[:flag]
         data_6d = np.append(data_6d_d, data_6d_2, axis)
         data_6d = np.append(data_6d, data_6d_u, axis)
 
-        data_cmd_u = data_cmd_1[stroke[append_to+1]:]
-        data_cmd_d = data_cmd_1[:stroke[append_to+1]]
+        data_cmd_u = data_cmd_1[flag:]
+        data_cmd_d = data_cmd_1[:flag]
         data_cmd = np.append(data_cmd_d, data_cmd_2, axis)
         data_cmd = np.append(data_cmd, data_cmd_u, axis)
 
