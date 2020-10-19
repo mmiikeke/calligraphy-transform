@@ -111,7 +111,7 @@ class calligraphy_transform():
             plt.show()
 
     def visualize_line_3d(self, data_3d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, show_in_rect=None, plot=True):
-        thresholdZ += 3
+        thresholdZ += 2
 
         if not with_thickness: 
             data_3d, data_cmd = self.find_draw_points(data_3d, thresholdZ, data_cmd=data_cmd)
