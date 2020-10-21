@@ -242,20 +242,20 @@ class calligraphy_transform():
     def data_6d_cmd_concate(self, data_6d_1, data_6d_2, data_cmd_1, data_cmd_2, append_to=-1, axis=0):
         stroke = self.find_stroke(data_cmd_1)
 
-        if append_to == -1:
-            flag = 0
+        if append_to == -2:
+            flag = len(stroke)-1
         else:
             flag = stroke[append_to+1]
 
-        data_6d_u = data_6d_1[flag:]
-        data_6d_d = data_6d_1[:flag]
-        data_6d = np.append(data_6d_d, data_6d_2, axis)
-        data_6d = np.append(data_6d, data_6d_u, axis)
+        data_6d_u = data_6d_1[:flag]
+        data_6d_d = data_6d_1[flag:]
+        data_6d = np.append(data_6d_u, data_6d_2, axis)
+        data_6d = np.append(data_6d, data_6d_d, axis)
 
-        data_cmd_u = data_cmd_1[flag:]
-        data_cmd_d = data_cmd_1[:flag]
-        data_cmd = np.append(data_cmd_d, data_cmd_2, axis)
-        data_cmd = np.append(data_cmd, data_cmd_u, axis)
+        data_cmd_u = data_cmd_1[:flag]
+        data_cmd_d = data_cmd_1[flag:]
+        data_cmd = np.append(data_cmd_u, data_cmd_2, axis)
+        data_cmd = np.append(data_cmd, data_cmd_d, axis)
 
         return data_6d, data_cmd
 
@@ -316,7 +316,7 @@ class calligraphy_transform():
         if min(datay) < 250:
             print(f'Warning: y axix is too small in data_3d, y = {min(datay)}')
 
-    def transform_3d(self, data_3d, anchor=[0,0,0], ratio=[1,1,1], translate=[0,0,0], angle=0):
+    def transform_3d(self, data_3d, anchor=[0,0,0], ratio=[1,1,1], translate=[0,0,0], angle=0, thresholdZ=0):
         angle = angle2deg(angle)
 
         out_data = list()
@@ -343,11 +343,21 @@ class calligraphy_transform():
         ])
         
         for row in data_3d:
-            row = np.append(row,1).reshape(4, 1)
-            row = np.dot(affine1, row)
-            row = np.dot(affine2, row)
-            row = np.dot(affine3, row)
-            out_data.append([row[0][0], row[1][0], row[2][0]])
+            if thresholdZ != 0:
+                if row[-1] <= thresholdZ:
+                    row = np.append(row,1).reshape(4, 1)
+                    row = np.dot(affine1, row)
+                    row = np.dot(affine2, row)
+                    row = np.dot(affine3, row)
+                    out_data.append([row[0][0], row[1][0], row[2][0]])
+                else:
+                    out_data.append([row[0], row[1], row[2]])
+            else:
+                row = np.append(row,1).reshape(4, 1)
+                row = np.dot(affine1, row)
+                row = np.dot(affine2, row)
+                row = np.dot(affine3, row)
+                out_data.append([row[0][0], row[1][0], row[2][0]])
 
         self.check_3d(out_data)
 

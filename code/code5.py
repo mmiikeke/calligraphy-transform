@@ -10,9 +10,14 @@ if __name__ == '__main__':
     z0_point = 0 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]
 
     data_6d, data_cmd = calligraphy_tool.read_file(path, is_6dcmd=True)
+    data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 2, 3, z0_point, anchor=0, ratio=[1, 1, 1], translate=[-2, 0, 0], angle=0)
     data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 0, 3, z0_point, anchor=0, ratio=[1, 1, 1], translate=[6, 0, 0], angle=0)
     data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 5, 6, z0_point, anchor=0, ratio=[1, 1, 1], translate=[0, 6, 0], angle=0)
     data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 10, 12, z0_point, anchor=0, ratio=[1, 1, 1], translate=[5, 0, 0], angle=0)
+    data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 5, 13, z0_point, anchor=0, ratio=[1, 1, 1], translate=[2, 0, 0], angle=0)
+    data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 0, 4, z0_point, anchor=0, ratio=[1, 1, 1], translate=[0, 0, 1.5], angle=0)
+    data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 5, 7, z0_point, anchor=0, ratio=[1, 1, 1], translate=[0, 0, 1], angle=0)
+    data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 7, 10, z0_point, anchor=0, ratio=[1, 1, 1], translate=[3, 0, -0.6], angle=0)
 
     data_6d = calligraphy_tool.transform_6d(data_6d, z0_point, anchor=0, ratio=[1.1, 1, 0.6], translate=[0, 0, 0], angle=0)
 

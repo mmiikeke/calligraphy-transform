@@ -4,12 +4,15 @@ from utils.tools import save_file
 
 if __name__ == '__main__':
     path = '../data/謝.txt'
-    output_path = '../data/7/ttt.txt'
+    output_path = '../data/7/tt.txt'
 
     calligraphy_tool = calligraphy_transform()
     z0_point = 0 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]
     
     data_6d, data_cmd = calligraphy_tool.read_file(path, is_6dcmd=True)
+
+    data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 15, 16, z0_point, anchor=0, ratio=[1, 1, 1], translate=[0, -14, 0], angle=0)
+
     data_6d = calligraphy_tool.transform_6d(data_6d, z0_point, anchor=0, ratio=[1.1, 1, 0.6], translate=[0, 0, 1], angle=0)
 
     data_6d = calligraphy_tool.transform_to_rect_6d(data_6d, [-122, -65.5, 405, 443.5], z0_point, ratio_z=0, translate_z=0, center=True, deform=False)
