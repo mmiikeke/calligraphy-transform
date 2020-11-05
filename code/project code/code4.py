@@ -4,13 +4,13 @@ from utils.tools import save_file
 
 if __name__ == '__main__':
     path = '../data/工.txt'
-    output_path = '../data/4/ttt.txt'
+    output_path = '../data/4/tt.txt'
 
     calligraphy_tool = calligraphy_transform()
     z0_point = 0 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]
     
     data_6d, data_cmd = calligraphy_tool.read_file(path, is_6dcmd=True)
-    data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 1, 2, z0_point, 0, ratio=[1, 1, 1], translate=[0, 11, 0], angle=0)
+    data_6d, data_cmd = calligraphy_tool.transform_6d_stroke(data_6d, data_cmd, 1, 2, z0_point, 0, ratio=[1, 0.9, 1], translate=[0, 11, 0], angle=0)
     
     data_6d = calligraphy_tool.transform_6d(data_6d, z0_point, anchor=0, ratio=[1, 1, 0.6], translate=[0, 0, -3], angle=0)
 

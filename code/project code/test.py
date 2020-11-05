@@ -69,7 +69,7 @@ if __name__ == '__main__':
         data_3d, data_angle = calligraphy_tool.six_to_three(data_6d)
         data_3d_transformed = calligraphy_tool.transform_to_rect_3d(data_3d, rects[i], z0_point, ratio_z=0, translate_z=-1, center=True, deform=False)
 
-        tmpz = 1.2
+        tmpz = 0
 
         if i == 0: #韌
             data_3d_transformed = calligraphy_tool.transform_3d(data_3d_transformed, translate=[-2, 0, 0] ,thresholdZ=tmpz)
@@ -86,11 +86,13 @@ if __name__ == '__main__':
         if i == 6: #代
             data_3d_transformed = calligraphy_tool.transform_3d(data_3d_transformed, translate=[0, 0, -2] ,thresholdZ=tmpz)
         if i == 7: #謝
-            data_3d_transformed = calligraphy_tool.transform_3d(data_3d_transformed, translate=[0, 0, -2] ,thresholdZ=tmpz)
+            data_3d_transformed = calligraphy_tool.transform_3d(data_3d_transformed, translate=[0, 0, -2.5] ,thresholdZ=tmpz)
 
         data_6d = calligraphy_tool.three_to_six(data_3d_transformed, data_angle)
         output_6d, output_cmd = calligraphy_tool.data_6d_cmd_concate(data_6d, water_6d, data_cmd, water_cmd)
         output_6dcmd = calligraphy_tool.six_to_cmd(output_6d, output_cmd)
+        for j in range(len(output_6dcmd)):
+            output_6dcmd[j][-2] = 350.0
         output_6dcmd = np.append(output_6dcmd, end6dcmd, 0)
         save_file(f'../data/output2/{words[i]}.txt', output_6dcmd)
 

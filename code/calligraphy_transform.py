@@ -88,7 +88,7 @@ class calligraphy_transform():
 
         return [rect[0], rect[2], thresholdZ]
 
-    def visualize_dot_3d(self, data_3d, data_cmd, thresholdZ, with_thickness = False, show_in_rect=None, plot=True):
+    def visualize_dot_3d(self, data_3d, data_cmd, thresholdZ, with_thickness = False, color='darkslategray', show_in_rect=None, plot=True):
         data_3d = self.find_draw_points(data_3d, thresholdZ)
 
         data = {
@@ -99,9 +99,9 @@ class calligraphy_transform():
             }
 
         if not with_thickness:
-            plt.scatter('a', 'b', c='darkslategray', data=data)
+            plt.scatter('a', 'b', c=color, data=data)
         else:
-            plt.scatter('a', 'b', c='darkslategray', s='s', data=data)
+            plt.scatter('a', 'b', c=color, s='s', data=data)
 
         if not show_in_rect is None:
             plt.xlim(show_in_rect[0], show_in_rect[1])
@@ -110,7 +110,7 @@ class calligraphy_transform():
         if plot:
             plt.show()
 
-    def visualize_line_3d(self, data_3d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, show_in_rect=None, plot=True):
+    def visualize_line_3d(self, data_3d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, color='darkslategray', show_in_rect=None, plot=True):
         thresholdZ += 2
 
         if not with_thickness: 
@@ -118,7 +118,7 @@ class calligraphy_transform():
             stroke = self.find_stroke(data_cmd)
             for i in range(len(stroke)-1):
                 line = data_3d[stroke[i]:stroke[i+1]]
-                plt.plot([i[0] for i in line], [i[1] for i in line], c='darkslategray')
+                plt.plot([i[0] for i in line], [i[1] for i in line], c=color)
         else:
             stroke = self.find_stroke(data_cmd)
             for i in range(len(data_3d)-1):
@@ -127,7 +127,7 @@ class calligraphy_transform():
                     y = [data_3d[i][1], data_3d[i+1][1]]
                     width = (thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*1.8
                     #width = sigmoid((thresholdZ - ((data_3d[i][2] + data_3d[i+1][2])*0.5))*0.2)*paint_width
-                    plt.plot(x, y, linewidth=width, c='darkslategray')
+                    plt.plot(x, y, linewidth=width, c=color)
         
         if not show_in_rect is None:
             plt.xlim(show_in_rect[0], show_in_rect[1])
@@ -136,9 +136,9 @@ class calligraphy_transform():
         if plot:
             plt.show()
     
-    def visualize_line_6d(self, data_6d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, show_in_rect=None, plot=True):
+    def visualize_line_6d(self, data_6d, data_cmd, thresholdZ, with_thickness=False, paint_width = 15, color='darkslategray', show_in_rect=None, plot=True):
         data_3d, _ = self.six_to_three(data_6d)
-        self.visualize_line_3d(data_3d, data_cmd, thresholdZ, with_thickness, paint_width, show_in_rect, plot)
+        self.visualize_line_3d(data_3d, data_cmd, thresholdZ, with_thickness, paint_width, color, show_in_rect, plot)
 
     def check_length_eq(self, data1, data2):
         if len(data1) != len(data2):
