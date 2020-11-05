@@ -1,8 +1,11 @@
+import os, sys
+sys.path.append('..')
+
 import numpy as np
 from calligraphy_transform import calligraphy_transform
 from utils.tools import save_file
 
-water_path = '../data/water/water.txt'
+water_path = '../../data/source/water/water.txt'
 startx = -250
 starty = 400
 total_width = 251
@@ -31,4 +34,4 @@ out_6dcmd = np.append(out_6dcmd, calligraphy_tool.six_to_cmd(tmp_6d, sample_cmd)
 
 out_6dcmd = np.append(out_6dcmd, end6dcmd, 0)
 
-save_file(f'../data/output2/rect.txt', out_6dcmd)
+save_file(f'../../data/output/rect.txt', out_6dcmd)

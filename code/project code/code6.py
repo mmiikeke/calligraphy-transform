@@ -1,10 +1,13 @@
+import os, sys
+sys.path.append('..')
+
 import matplotlib.pyplot as plt
 from calligraphy_transform import calligraphy_transform
 from utils.tools import save_file
 
 if __name__ == '__main__':
-    path = '../data/代.txt'
-    output_path = '../data/6/tt.txt'
+    path = '../../data/source/6/代.txt'
+    output_path = '../../data/source/6/word.txt'
 
     calligraphy_tool = calligraphy_transform()
     z0_point = 0 #3.21083745 [-66.7041, 438.85, 187.479, -177.603, 4.50068, -9.48322]

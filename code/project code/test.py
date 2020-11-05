@@ -1,3 +1,6 @@
+import os, sys
+sys.path.append('..')
+
 import matplotlib.pyplot as plt
 import numpy as np
 from calligraphy_transform import calligraphy_transform
@@ -5,10 +8,12 @@ from utils.tools import save_file
 
 if __name__ == '__main__':
     index = [4,5,6,7,0,1,2,3]
-    paths = ['../data/0/tt.txt', '../data/1/tt.txt', '../data/2/tt.txt', '../data/3/tt.txt', '../data/4/tt.txt', '../data/5/tt.txt', '../data/6/tt.txt', '../data/7/tt.txt']
+    paths = list()
+    for i in range(8):
+        paths.append(f'../../data/source/{i}/word.txt')
     words = ['韌','性','城','鄉','工','業','代','謝']
-    water_path = '../data/water/water.txt'
-    #end6dcmd = np.array([['movl', 0, -111.143, 315.508, 333.159, 176.705, 0.0, -178.533, 100.0, 'strokeEnd']])
+    water_path = '../../data/source/water/water.txt'
+    output_path = '../../data/output'
     end6dcmd = np.array([['cmd42', '0', '-105', '-22', '-70', '0', '-90', '0', '', '']])
     calligraphy_tool = calligraphy_transform()
     water_6d, water_cmd = calligraphy_tool.read_file(water_path, is_6dcmd=True)
@@ -94,7 +99,7 @@ if __name__ == '__main__':
         for j in range(len(output_6dcmd)):
             output_6dcmd[j][-2] = 350.0
         output_6dcmd = np.append(output_6dcmd, end6dcmd, 0)
-        save_file(f'../data/output2/{words[i]}.txt', output_6dcmd)
+        save_file(f'{output_path}/{words[i]}.txt', output_6dcmd)
 
         calligraphy_tool.visualize_line_3d(data_3d_transformed, data_cmd, z0_point, with_thickness=True, plot=False)
         print(i)
@@ -104,7 +109,7 @@ if __name__ == '__main__':
         else:
             final_output = np.append(final_output, output_6dcmd, 0)
     
-    save_file(f'../data/output2/final.txt', final_output)
+    save_file(f'{output_path}/final.txt', final_output)
     
     plt.xlim(startx, startx + total_width)
     plt.ylim(starty, starty + total_height)

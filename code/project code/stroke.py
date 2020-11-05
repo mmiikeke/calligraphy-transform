@@ -31,13 +31,15 @@ ani = animation.ArtistAnimation(fig, ims, interval=500, blit=False,
                               repeat_delay=2000)
 plt.show()
 """
+import os, sys
+sys.path.append('..')
 
 import matplotlib.pyplot as plt
 from calligraphy_transform import calligraphy_transform
 from utils.tools import save_file
 
 if __name__ == '__main__':
-    path = '../data/6axis/char00126_stroke.txt'
+    path = '../../data/6axis/char00126_stroke.txt'
     #output_path1 = '../o/3d.txt'
     #output_path2 = '../o/3d_1.txt'
     #output_path3 = '../o/3d_2.txt'

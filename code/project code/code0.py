@@ -1,11 +1,14 @@
+import os, sys
+sys.path.append('..')
+
 import matplotlib.pyplot as plt
 from calligraphy_transform import calligraphy_transform
 from utils.tools import save_file
 
 if __name__ == '__main__':
-    path = '../data/0/char00649_stroke_5_14.txt'
-    path2 = '../data/0/char00496_stroke_3_6_.txt'
-    output_path = '../data/0/tt.txt'
+    path = '../../data/source/0/char00649_stroke_5_14.txt'
+    path2 = '../../data/source/0/char00496_stroke_3_6_.txt'
+    output_path = '../../data/source/0/word.txt'
 
     calligraphy_tool = calligraphy_transform()
     z0_point = 0
